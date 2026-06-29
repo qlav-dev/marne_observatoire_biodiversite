@@ -16,4 +16,5 @@ dependencies:
     - alembic
     - python-dotenv
     - pytest
-    - httpx 
+    - httpx
+    - pandas

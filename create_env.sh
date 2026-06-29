@@ -1,6 +1,6 @@
+# Sur conda
 conda env create -f environment.yml
 conda activate marne_observatoire
-
 
 # Si pip:
 python -m venv venv

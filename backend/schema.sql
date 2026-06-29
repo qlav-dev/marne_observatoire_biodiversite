@@ -4,29 +4,48 @@ PRAGMA foreign_keys = ON;
 DROP TABLE IF EXISTS Stations;
 
 CREATE TABLE IF NOT EXISTS Stations (
-    CdStationMesureEauxSurface   INTEGER PRIMARY KEY,
-    LbStationMesureEauxSurface   TEXT NOT NULL,
-    CdPointEauxSurf              INTEGER,
-    CdSupport                    INTEGER,
-    LbSupport                    TEXT,
-    DateDebutOperationPrelBio    DATE,
-    CdListeFauFlor               TEXT,
-    LbListeFauFlor               TEXT,
-    CdTypListeFauFlor            TEXT,
-    MnTypListeFauFlor            TEXT,
-    CdTypTaxRep                  INTEGER,
-    MnTypTaxRep                  TEXT,
-    CdAppelTaxon                 INTEGER,
-    NomLatinAppelTaxon           TEXT,
-    RsTaxRep                     REAL,
-    CdRqNbrTaxRep                INTEGER,
-    MnemoRqNbrTaxRep             TEXT,
-    CdUniteMesure                INTEGER,
-    SymUniteMesure               TEXT,
-    RefOperationPrelBio          TEXT,
-    CdProducteur                 INTEGER,
-    NomProducteur                TEXT
+    CdStationMesureEauxSurface  
+    LbStationMesureEauxSurface  
+    DurStationMesureEauxSurface 
+    CoordXStationMesureEauxSurface  
+    CoordYStationMesureEauxSurface  
+    CdProjStationMesureEauxSurface  
+    LibelleProjection   
+    CodeCommune 
+    LbCommune   
+    CodeDepartement 
+    LbDepartement   
+    CodeRegion  
+    LbRegion    
+    CdMasseDEau 
+    CdEuMasseDEau   
+    NomMasseDEau    
+    CdEuSsBassinDCEAdmin    
+    NomSsBassinDCEAdmin 
+    CdBassinDCE 
+    CdEuBassinDCE   
+    NomEuBassinDCE  
+    CdTronconHydrographique 
+    CdCoursdEau 
+    NomCoursdEau    
+    CodeTypEthStationMesureEauxSurface  
+    LibelleTypEthStationMesureEauxSurface   
+    ComStationMesureEauxSurface 
+    DateCreationStationMesureEauxSurface    
+    DateArretActiviteStationMesureEauxSurface   
+    DateMAJInfosStationMesureEauxSurface    
+    FinaliteStationMesureEauxSurface    
+    LocPreciseStationMesureEauxSurface  
+    CodeNatureStationMesureEauxSurface  
+    LibelleNatureStationMesureEauxSurface   
+    AltitudePointCaracteritisque    
+    PkPointTronconEntiteHydroPrincipale 
+    PremierMoisAnneeEtiage  
+    SuperficieBassinVersantReel 
+    SuperficieBassinVersantTopo 
+
 );
+
 
 -- Index pour meilleur performances
 CREATE INDEX IF NOT EXISTS idx_stations_support ON Stations(CdSupport);
