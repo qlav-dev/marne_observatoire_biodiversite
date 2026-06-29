@@ -1,10 +1,10 @@
 
 
 Framework de backend: (Python?)
-    fastapi ?
+    Fastapi
 
 Frontend:
-    React ? 
+    React
     
 Database:
     (SQLite puis PostgreSQL pour les perfs)
@@ -17,3 +17,9 @@ Recuperer les données
     https://geonature.arb-idf.fr/
     https://cbnbp.mnhn.fr/
     https://www.geoportail.gouv.fr/
+
+
+Voici les cartes interactives que nous recensées qui nous intéressées : 
+    Compétences du SyAGE EPAGE de l'Yerres
+    CARTOVÉGÉTATION 2024
+    QGIS Web Client 2
