@@ -17,6 +17,7 @@ class database:
         print(f"Base de données prête : {self.DB_PATH}")
 
     def load_from_csv(self, csv_path: str, table_name: str, **kwargs) -> None:
+        print(f"loading {table_name}")
         csv_data = pd.read_csv(csv_path, **kwargs)
         
         cursor = self.conn.cursor()
@@ -43,5 +44,9 @@ if __name__ == "__main__":
         SCHEMA_PATH = Path(__file__).parent / "schema.sql"
     )
 
+    db.load_from_csv(r"Naiades_filter/operation_94.csv", table_name="Operations", sep = ";", on_bad_lines="skip", dtype=str)
+    db.load_from_csv(r"Naiades_filter/cep_94.csv", table_name="CEP", sep = ";", on_bad_lines="skip", dtype=str)
+    db.load_from_csv(r"Naiades_filter/fauneflore_94.csv", table_name="FauneFlore", sep = ";", on_bad_lines="skip", dtype=str)
+    db.load_from_csv(r"Naiades_filter/resultat_94.csv", table_name="Resultats", sep = ";", on_bad_lines="skip", dtype=str)
     db.load_from_csv(r"Naiades_filter/stations.csv", table_name="Stations", sep = ";", on_bad_lines="skip", dtype=str)
 
