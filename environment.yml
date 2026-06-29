@@ -1,0 +1,20 @@
+# environment.yml
+name: marne_observatoire
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - pip
+  - uvloop
+  - httptools
+  - pip:
+    - fastapi>=0.115.0
+    - uvicorn[standard]
+    - pydantic>=2.5.0
+    - python-multipart
+    - sqlalchemy
+    - alembic
+    - python-dotenv
+    - pytest
+    - httpx 
