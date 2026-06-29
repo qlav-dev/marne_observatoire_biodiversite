@@ -2,6 +2,9 @@
 
 Framework de backend: (Python?)
     fastapi ?
+
+Frontend:
+    React ? 
     
 Database:
     (SQLite puis PostgreSQL pour les perfs)
