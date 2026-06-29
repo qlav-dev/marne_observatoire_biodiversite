@@ -6,7 +6,6 @@ channels:
 dependencies:
   - python=3.11
   - pip
-  - uvloop
   - httptools
   - pip:
     - fastapi>=0.115.0
