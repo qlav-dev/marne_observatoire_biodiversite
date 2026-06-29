@@ -4,45 +4,45 @@ PRAGMA foreign_keys = ON;
 DROP TABLE IF EXISTS Stations;
 
 CREATE TABLE IF NOT EXISTS Stations (
-    CdStationMesureEauxSurface 
-    LbStationMesureEauxSurface  
-    DurStationMesureEauxSurface 
-    CoordXStationMesureEauxSurface  
-    CoordYStationMesureEauxSurface  
-    CdProjStationMesureEauxSurface  
-    LibelleProjection   
-    CodeCommune 
-    LbCommune   
-    CodeDepartement 
-    LbDepartement   
-    CodeRegion  
-    LbRegion    
-    CdMasseDEau 
-    CdEuMasseDEau   
-    NomMasseDEau    
-    CdEuSsBassinDCEAdmin    
-    NomSsBassinDCEAdmin 
-    CdBassinDCE 
-    CdEuBassinDCE   
-    NomEuBassinDCE  
-    CdTronconHydrographique 
-    CdCoursdEau 
-    NomCoursdEau    
-    CodeTypEthStationMesureEauxSurface  
-    LibelleTypEthStationMesureEauxSurface   
-    ComStationMesureEauxSurface 
-    DateCreationStationMesureEauxSurface    
-    DateArretActiviteStationMesureEauxSurface   
-    DateMAJInfosStationMesureEauxSurface    
-    FinaliteStationMesureEauxSurface    
-    LocPreciseStationMesureEauxSurface  
-    CodeNatureStationMesureEauxSurface  
-    LibelleNatureStationMesureEauxSurface   
-    AltitudePointCaracteritisque    
-    PkPointTronconEntiteHydroPrincipale 
-    PremierMoisAnneeEtiage  
-    SuperficieBassinVersantReel 
-    SuperficieBassinVersantTopo 
+    CdStationMesureEauxSurface INTEGER
+    LbStationMesureEauxSurface TEXT
+    DurStationMesureEauxSurface TEXT
+    CoordXStationMesureEauxSurface REAL
+    CoordYStationMesureEauxSurface REAL
+    CdProjStationMesureEauxSurface INTEGER
+    LibelleProjection TEXT
+    CodeCommune INTEGER
+    LbCommune TEXT
+    CodeDepartement INTEGER 
+    LbDepartement TEXT
+    CodeRegion INTEGER
+    LbRegion TEXT
+    CdMasseDEau INTEGER
+    CdEuMasseDEau INTEGER
+    NomMasseDEau TEXT
+    CdEuSsBassinDCEAdmin INTEGER    
+    NomSsBassinDCEAdmin TEXT
+    CdBassinDCE INTEGER
+    CdEuBassinDCE INTEGER
+    NomEuBassinDCE TEXT
+    CdTronconHydrographique TEXT
+    CdCoursdEau TEXT
+    NomCoursdEau TEXT
+    CodeTypEthStationMesureEauxSurface INTEGER
+    LibelleTypEthStationMesureEauxSurface   TEXT
+    ComStationMesureEauxSurface TEXT
+    DateCreationStationMesureEauxSurface TEXT    
+    DateArretActiviteStationMesureEauxSurface TEXT   
+    DateMAJInfosStationMesureEauxSurface TEXT
+    FinaliteStationMesureEauxSurface TEXT
+    LocPreciseStationMesureEauxSurface TEXT
+    CodeNatureStationMesureEauxSurface  INTEGER
+    LibelleNatureStationMesureEauxSurface   TEXT
+    AltitudePointCaracteritisque INTEGER
+    PkPointTronconEntiteHydroPrincipale REAL 
+    PremierMoisAnneeEtiage  REAL 
+    SuperficieBassinVersantReel REAL 
+    SuperficieBassinVersantTopo REAL 
 
 );
 
