@@ -4,7 +4,7 @@ PRAGMA foreign_keys = ON;
 DROP TABLE IF EXISTS Stations;
 
 CREATE TABLE IF NOT EXISTS Stations (
-    CdStationMesureEauxSurface  
+    CdStationMesureEauxSurface 
     LbStationMesureEauxSurface  
     DurStationMesureEauxSurface 
     CoordXStationMesureEauxSurface  

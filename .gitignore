@@ -32,7 +32,6 @@ build/
 Naiades_Export_France_Entiere_HB/operation.csv
 Naiades_Export_France_Entiere_HB/fauneflore.csv
 Naiades_Export_France_Entiere_HB/resultat.csv
-.gitignore
 Naiades_Export_France_Entiere_HB/cep.csv
 Naiades_Export_France_Entiere_HB/stations.csv
 Naiades_Export_France_Entiere_HB/.DS_Store
