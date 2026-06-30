@@ -1,6 +1,7 @@
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, HTTPException, Depends
 from pydantic import BaseModel
+from pyproj import Transformer
 import math
 import sqlite3
 
@@ -14,44 +15,36 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-def haversine_distance(lat1, lon1, lat2, lon2):
+transformer = Transformer.from_crs("EPSG:4326", "EPSG:2154", always_xy=True)
 
+def euclidean_distance(x1, y1, x2, y2):
     try:
-        lat1, lon1, lat2, lon2 = float(lat1), float(lon1), float(lat2), float(lon2)
+        x1, y1, x2, y2 = float(x1), float(y1), float(x2), float(y2)
     except (ValueError, TypeError):
         return float('inf')
-
-    R = 6371.0
-    lat1, lon1, lat2, lon2 = map(math.radians, [lat1, lon1, lat2, lon2])
-    dlat = lat2 - lat1
-    dlon = lon2 - lon1
-
-    # Formule de Haversine
-    a = (
-        math.sin(dlat / 2) ** 2
-        + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2) ** 2
-    )
-    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-    return R * c
+    distance_metres = math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
+    return distance_metres / 1000.0
 
 @app.get("/station-proche")
 def get_station_proche(lat_user: float, lon_user: float):
 
     conn = sqlite3.connect("naiades_database.db")
-    conn.create_function("HA_DIST", 4, haversine_distance)
+    conn.create_function("EUC_DIST", 4, euclidean_distance)
     cursor = conn.cursor()
+    
+    user_x_lambert, user_y_lambert = transformer.transform(lon_user, lat_user)
 
     try:
         query = """
-            SELECT LbStationMesureEauxSurface, CoordYStationMesureEauxSurface, CoordXStationMesureEauxSurface, HA_DIST(?, ?, CoordYStationMesureEauxSurface, CoordXStationMesureEauxSurface) AS distance
+            SELECT LbStationMesureEauxSurface, CoordXStationMesureEauxSurface, CoordYStationMesureEauxSurface, EUC_DIST(?, ?, CoordXStationMesureEauxSurface, CoordYStationMesureEauxSurface) AS distance
             FROM Stations
             WHERE CoordXStationMesureEauxSurface IS NOT NULL 
-              AND CoordYStationMesureEauxSurface IS NOT NULL
+            AND CoordYStationMesureEauxSurface IS NOT NULL
             ORDER BY distance ASC
             LIMIT 1;
         """
 
-        cursor.execute(query, (lat_user, lon_user))
+        cursor.execute(query, (user_x_lambert, user_y_lambert))
         result = cursor.fetchone()
 
     except sqlite3.OperationalError as e:
@@ -72,11 +65,12 @@ def get_station_proche(lat_user: float, lon_user: float):
     return {
         "station_la_plus_proche": {
             "nom": result[0],
-            "latitude": result[1],
-            "longitude": result[2],
+            "lambert_x": float(result[1]),
+            "lambert_y": float(result[2]),
             "distance_km": round(result[3], 2),
         }
     }
+
 
 if __name__ == "__main__":
     import uvicorn

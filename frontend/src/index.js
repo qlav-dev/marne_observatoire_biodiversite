@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
-import Map from './Test';
+import Map from './Map';
 import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -14,10 +14,13 @@ root.render(
       </button>
     </div>
     <App />
-    <Map /><div class= "wrapper">
-  <div class="one">Un</div>
-  <div class="two">Deux</div>
-</div>
+    <header>Observatoire de la Biodiversité</header>
+    <div class= "wrapper">
+      <div class="one">
+        <Map />
+      </div>
+      <div class="two">Un</div>
+    </div>
   </React.StrictMode>
 );
 
