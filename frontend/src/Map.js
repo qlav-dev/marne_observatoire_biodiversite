@@ -30,6 +30,28 @@ const Map = ({ center = [48.7859896, 2.5122759], zoom = 13 }) => {
 		attribution: '© OpenStreetMap contributors'
 	}).addTo(mapInstanceRef.current);
 
+	const resizeMap = () => {
+            if (mapInstanceRef.current) {
+                console.log('Resizing map...');
+                mapInstanceRef.current.invalidateSize();
+            }
+        };
+
+        // Initial resize with multiple delays to ensure container is ready
+        const timers = [
+            setTimeout(resizeMap, 100),
+            setTimeout(resizeMap, 300),
+            setTimeout(resizeMap, 500)
+        ];
+
+        // Resize on window changes
+        const handleResize = () => {
+            if (mapInstanceRef.current) {
+                mapInstanceRef.current.invalidateSize();
+            }
+        };
+        window.addEventListener('resize', handleResize);
+
 	  // Add a marker
 	L.marker(center)
 		.addTo(mapInstanceRef.current)
