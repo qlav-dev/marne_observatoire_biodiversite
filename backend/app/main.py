@@ -39,7 +39,7 @@ def get_station_proche(lat_user: float, lon_user: float):
             SELECT LbStationMesureEauxSurface, CoordXStationMesureEauxSurface, CoordYStationMesureEauxSurface, EUC_DIST(?, ?, CoordXStationMesureEauxSurface, CoordYStationMesureEauxSurface) AS distance
             FROM Stations
             WHERE CoordXStationMesureEauxSurface IS NOT NULL 
-              AND CoordYStationMesureEauxSurface IS NOT NULL
+            AND CoordYStationMesureEauxSurface IS NOT NULL
             ORDER BY distance ASC
             LIMIT 1;
         """
