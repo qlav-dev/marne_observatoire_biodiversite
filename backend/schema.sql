@@ -2,7 +2,7 @@
 DROP TABLE IF EXISTS Stations;
 
 CREATE TABLE IF NOT EXISTS Stations (
-    CdStationMesureEauxSurface TEXT PRIMARY KEY,
+    CdStationMesureEauxSurface INT PRIMARY KEY,
     LbStationMesureEauxSurface TEXT,
     DurStationMesureEauxSurface TEXT,
     CoordXStationMesureEauxSurface TEXT,
