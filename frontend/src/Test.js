@@ -51,7 +51,7 @@ const Map = ({ center = [48.7859896, 2.5122759], zoom = 13 }) => {
 	  style={{ 
 		marginLeft: '10px',
 		marginRight: '10px',
-		width: '95%', 
+		width: '50%', 
 		height: '50em', 
 		borderRadius: '8px',
 		boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
