@@ -14,10 +14,12 @@ root.render(
       </button>
     </div>
     <App />
-    <Map /><div class= "wrapper">
-  <div class="one">Un</div>
-  <div class="two">Deux</div>
-</div>
+    <div class= "wrapper">
+      <div class="one">
+        <Map />
+      </div>
+      <div class="two">Un</div>
+    </div>
   </React.StrictMode>
 );
 
