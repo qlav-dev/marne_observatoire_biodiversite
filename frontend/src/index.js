@@ -8,16 +8,19 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <div>
-      
+     <h1>Carte des points d'observation</h1> 
     </div>
    
-    <h1>Observatoire de la Biodiversité</h1>
+    
     <div class= "wrapper">
       <div class="one">
         <Map />
       </div>
       <div class="two">Paramètres</div>
-      <div class="three">Trois</div>
+      <div class="three"> <div className="checkbox-container">
+    <input type="checkbox" id="monCheckboxUnique" className="custom-checkbox-input"/>
+    <label htmlFor="monCheckboxUnique" className="custom-checkbox-label">Essai</label>
+</div></div>
       
     </div>
   </React.StrictMode>

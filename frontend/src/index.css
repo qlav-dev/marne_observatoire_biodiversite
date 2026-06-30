@@ -78,3 +78,25 @@ code {
   font-weight: bold;
   margin-bottom: 20px;
 }
+/* Aligne la case et le texte sur la même ligne */
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;            /* Espace entre le carré et le mot "Essai" */
+  margin-top: 15px;    /* Espace au-dessus du bloc */
+}
+
+/* Force la case à cocher à avoir une taille visible */
+.custom-checkbox-input {
+  display: inline-block !important; /* Annule un éventuel "display: none" caché */
+  width: 16px !important;
+  height: 16px !important;
+  margin: 0;
+  cursor: pointer;
+}
+
+/* Style du texte à côté */
+.custom-checkbox-label {
+  cursor: pointer;
+  font-size: 14px;
+  user-select: none;}
