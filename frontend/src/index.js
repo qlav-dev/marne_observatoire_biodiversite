@@ -14,9 +14,13 @@ root.render(
       </button>
     </div>
     <App />
-    <Map />
+    <Map /><div class= "wrapper">
+  <div class="one">Un</div>
+  <div class="two">Deux</div>
+</div>
   </React.StrictMode>
 );
+
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
