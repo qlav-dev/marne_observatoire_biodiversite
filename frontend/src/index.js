@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import App from './App';
 import Map from './Map';
 import reportWebVitals from './reportWebVitals';
 
@@ -9,17 +8,17 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <div>
-      <button>
-        aa
-      </button>
+      
     </div>
-    <App />
-    <header>Observatoire de la Biodiversité</header>
+   
+    <h1>Observatoire de la Biodiversité</h1>
     <div class= "wrapper">
       <div class="one">
         <Map />
       </div>
-      <div class="two">Un</div>
+      <div class="two">Paramètres</div>
+      <div class="three">Trois</div>
+      
     </div>
   </React.StrictMode>
 );
