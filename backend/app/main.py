@@ -17,34 +17,76 @@ app.add_middleware(
 
 transformer = Transformer.from_crs("EPSG:4326", "EPSG:2154", always_xy=True)
 
-def euclidean_distance(x1, y1, x2, y2):
-    try:
-        x1, y1, x2, y2 = float(x1), float(y1), float(x2), float(y2)
-    except (ValueError, TypeError):
-        return float('inf')
-    distance_metres = math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
-    return distance_metres / 1000.0
+@app.get("/stations-zone")
+def get_stations_zone(lat1: float, lon1: float, lat2: float, lon2: float):
+    
+    x1, y1 = transformer.transform(lon1, lat1)
+    x2, y2 = transformer.transform(lon2, lat2)
 
-@app.get("/station-proche")
-def get_station_proche(lat_user: float, lon_user: float):
+    min_x, max_x = min(x1, x2), max(x1, x2)
+    min_y, max_y = min(y1, y2), max(y1, y2)
 
     conn = sqlite3.connect("naiades_database.db")
-    conn.create_function("EUC_DIST", 4, euclidean_distance)
+    conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
-    
-    user_x_lambert, user_y_lambert = transformer.transform(lon_user, lat_user)
 
     try:
         query = """
-            SELECT LbStationMesureEauxSurface, CoordXStationMesureEauxSurface, CoordYStationMesureEauxSurface, EUC_DIST(?, ?, CoordXStationMesureEauxSurface, CoordYStationMesureEauxSurface) AS distance
+            SELECT LbStationMesureEauxSurface AS nom, 
+                   CoordXStationMesureEauxSurface AS lambert_x, 
+                   CoordYStationMesureEauxSurface AS lambert_y
             FROM Stations
-            WHERE CoordXStationMesureEauxSurface IS NOT NULL 
-            AND CoordYStationMesureEauxSurface IS NOT NULL
-            ORDER BY distance ASC
+            WHERE CoordXStationMesureEauxSurface IS NOT NULL
+              AND CAST(CoordXStationMesureEauxSurface AS REAL) BETWEEN ? AND ?
+              AND CAST(CoordYStationMesureEauxSurface AS REAL) BETWEEN ? AND ?
+        """
+        
+        cursor.execute(query, (min_x, max_x, min_y, max_y))
+        results = cursor.fetchall()
+
+    except sqlite3.OperationalError as e:
+        conn.close()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erreur SQL. Erreur : {e}",
+        )
+
+    conn.close()
+
+    stations = []
+    for row in results:
+        stations.append({
+            "nom": row["nom"],
+            "lambert_x": float(row["lambert_x"]),
+            "lambert_y": float(row["lambert_y"])
+        })
+
+    return {
+        "metadonnees": {
+            "nombre_stations_trouvees": len(stations),
+            "zone_lambert93": {
+                "x_min": round(min_x, 2), "x_max": round(max_x, 2),
+                "y_min": round(min_y, 2), "y_max": round(max_y, 2)
+            }
+        },
+        "stations": stations
+    }
+
+@app.get("/station-infos")
+def get_station_infos(nom_station: str):
+    conn = sqlite3.connect("naiades_database.db")
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+
+    try:
+        # On utilise LIKE pour chercher une correspondance partielle
+        query = """
+            SELECT * FROM Stations 
+            WHERE LbStationMesureEauxSurface LIKE ? 
             LIMIT 1;
         """
-
-        cursor.execute(query, (user_x_lambert, user_y_lambert))
+        
+        cursor.execute(query, (f"%{nom_station}%",))
         result = cursor.fetchone()
 
     except sqlite3.OperationalError as e:
@@ -58,19 +100,13 @@ def get_station_proche(lat_user: float, lon_user: float):
 
     if not result:
         raise HTTPException(
-            status_code=404, detail="Aucune station trouvée dans la base."
+            status_code=404, 
+            detail=f"Aucune station trouvée contenant le nom : '{nom_station}'"
         )
 
-    # On structure la réponse JSON propre
     return {
-        "station_la_plus_proche": {
-            "nom": result[0],
-            "lambert_x": float(result[1]),
-            "lambert_y": float(result[2]),
-            "distance_km": round(result[3], 2),
-        }
+        "station_infos": dict(result)
     }
-
 
 if __name__ == "__main__":
     import uvicorn
