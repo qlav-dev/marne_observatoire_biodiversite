@@ -2,3 +2,5 @@
 *.largefile
 
 */__pycache__/*
+
+*.lock
