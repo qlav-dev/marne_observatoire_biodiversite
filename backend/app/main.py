@@ -87,7 +87,7 @@ def get_stations_zone(lat1: float, lon1: float, lat2: float, lon2: float):
     }
 
 @app.get("/station-infos")
-def get_station_infos(nom_station: str):
+def get_station_infos(code_station: int):
     conn = sqlite3.connect("naiades_database.db")
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
@@ -96,11 +96,11 @@ def get_station_infos(nom_station: str):
         # On utilise LIKE pour chercher une correspondance partielle
         query = """
             SELECT * FROM Stations 
-            WHERE LbStationMesureEauxSurface LIKE ? 
+            WHERE CdStationMesureEauxSurface = ?
             LIMIT 1;
         """
         
-        cursor.execute(query, (f"%{nom_station}%",))
+        cursor.execute(query, (code_station,))
         result = cursor.fetchone()
 
     except sqlite3.OperationalError as e:
@@ -115,7 +115,7 @@ def get_station_infos(nom_station: str):
     if not result:
         raise HTTPException(
             status_code=404, 
-            detail=f"Aucune station trouvée contenant le nom : '{nom_station}'"
+            detail=f"Aucune station trouvée ayant le code : '{code_station}'"
         )
 
     # Convert to dict and add lat/lng if coordinates exist
