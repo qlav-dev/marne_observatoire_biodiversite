@@ -14,6 +14,7 @@ root.render(
       </button>
     </div>
     <App />
+    <header>Observatoire de la Biodiversité</header>
     <div class= "wrapper">
       <div class="one">
         <Map />
