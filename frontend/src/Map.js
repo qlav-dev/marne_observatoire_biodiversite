@@ -3,11 +3,22 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import './map.css';
 
-// Fix for default Leaflet icons in React
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 
-// Configure default icon
+async function getStationsInZone(lat1, lat2, lon1, lon2) {
+    try {
+        const url = `http://127.0.0.1:8000/stations-zone?lat1=${lat1}&lat2=${lat2}&lon1=${lon1}&lon2=${lon2}`;
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Erreur lors de la récupération des stations:', error);
+        return { stations: [] };
+    }
+}
+
 const DefaultIcon = L.icon({
     iconUrl: icon,
     shadowUrl: iconShadow,
@@ -20,75 +31,87 @@ const Map = ({ center = [48.7859896, 2.5122759], zoom = 13 }) => {
     const mapRef = useRef(null);
     const mapInstanceRef = useRef(null);
 
+    const loadStations = async (map) => {
+        if (!map) return;
+        
+        const bounds = map.getBounds();
+        const southWest = bounds.getSouthWest();
+        const northEast = bounds.getNorthEast();
+
+        try {
+            const stations_in_zone = await getStationsInZone(
+                southWest.lat, northEast.lat, southWest.lng, northEast.lng
+            );
+
+            // Remove old markers
+            map.eachLayer((layer) => {
+                if (layer instanceof L.Marker) {
+                    map.removeLayer(layer);
+                }
+            });
+
+            // Add new markers
+            stations_in_zone.stations?.forEach((station) => {
+                //console.log('Adding marker:', station.nom);
+                L.marker([station.latitude, station.longitude])
+                    .addTo(map)
+                    .bindPopup(station.nom);
+            });
+
+        } catch (error) {
+            console.error('Error loading stations:', error);
+        }
+    };
+
     useEffect(() => {
-	// Initialize map only once
-	if (!mapInstanceRef.current && mapRef.current) {
-		mapInstanceRef.current = L.map(mapRef.current).setView(center, zoom);
+        if (!mapInstanceRef.current && mapRef.current) {
+            mapInstanceRef.current = L.map(mapRef.current).setView(center, zoom);
 
-	  // Add tile layer (OpenStreetMap)
-	L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
-		attribution: '© OpenStreetMap contributors'
-	}).addTo(mapInstanceRef.current);
+            L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(mapInstanceRef.current);
 
-	const resizeMap = () => {
-            if (mapInstanceRef.current) {
-                console.log('Resizing map...');
-                mapInstanceRef.current.invalidateSize();
-            }
-        };
+            // Resize handling
+            const resizeMap = () => {
+                if (mapInstanceRef.current) {
+                    mapInstanceRef.current.invalidateSize();
+                }
+            };
 
-        // Initial resize with multiple delays to ensure container is ready
-        const timers = [
-            setTimeout(resizeMap, 100),
-            setTimeout(resizeMap, 300),
-            setTimeout(resizeMap, 500)
-        ];
+            setTimeout(resizeMap, 100);
+            setTimeout(resizeMap, 300);
+            setTimeout(resizeMap, 500);
 
-        // Resize on window changes
-        const handleResize = () => {
-            if (mapInstanceRef.current) {
-                mapInstanceRef.current.invalidateSize();
-            }
-        };
-        window.addEventListener('resize', handleResize);
+            const handleResize = () => {
+                if (mapInstanceRef.current) {
+                    mapInstanceRef.current.invalidateSize();
+                }
+            };
+            window.addEventListener('resize', handleResize);
 
-	  // Add a marker
-	L.marker(center)
-		.addTo(mapInstanceRef.current)
-		.bindPopup('Hello from React 19!')
-		.openPopup();
-	};
+            // Load initial stations
+            setTimeout(() => {
+                if (mapInstanceRef.current) {
+                    loadStations(mapInstanceRef.current);
+                }
+            }, 600);
 
-	mapInstanceRef.current.on('move', function() {
-		// Get bounds in lat/lng
-		const bounds = this.getBounds();
-		
-		// Extract individual corners
-		const southWest = bounds.getSouthWest();
-		const northEast = bounds.getNorthEast();
-		
-		console.log('Map Bounds:');
-		console.log('South-West:', southWest.lat, southWest.lng);
-		console.log('North-East:', northEast.lat, northEast.lng);
-		console.log('Center:', this.getCenter());
-	});
+            // FIX: Event listener INSIDE useEffect and pass 'this'
+            mapInstanceRef.current.on('moveend', function() {
+                loadStations(this); // Pass the map instance
+            });
 
+            return () => {
+                window.removeEventListener('resize', handleResize);
+                if (mapInstanceRef.current) {
+                    mapInstanceRef.current.remove();
+                    mapInstanceRef.current = null;
+                }
+            };
+        }
+    }, [center, zoom]);
 
-	// Cleanup on unmount
-	return () => {
-		if (mapInstanceRef.current) {
-		mapInstanceRef.current.remove();
-		mapInstanceRef.current = null;
-		}
-	};
-	}, [center, zoom]);
-
-	return (
-	<div 
-		ref={mapRef} 
-		class="map"
-	/>
-	);
+    return <div ref={mapRef} className="map" style={{ width: '100%', height: '500px' }} />;
 };
 
 export default Map;
