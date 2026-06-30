@@ -1,0 +1,28 @@
+
+<!DOCTYPE html>
+<html>
+<title>Carte biodiversité</title>
+<h1> Carte des espèces en dangers en Marne-en-vallée</h1>
+<div id="Map_biodiversite" style="height:250px"></div>
+<script src="OpenLayers-2.13.1/OpenLayers.js"></script>
+<link rel=carte.css>
+<script>
+    map = new OpenLayers.Map("Map_biodiversite");
+    map.addLayer(new OpenLayers.Layer.OSM());
+    map.zoomToMaxExtent();
+     map.setCenter(new OpenLayers.LonLat( // Centre de la carte
+          .transform(
+            new OpenLayers.Projection("EPSG:4326"), // transformation de WGS 1984
+            new OpenLayers.Projection("EPSG:900913") // en projection Mercator sphérique
+          ), 15 // Zoom level
+        )
+    var coucheMarqueurs = new OpenLayers.Layer.Markers("Espèces en danger");
+    map.addLayer(coucheMarqueurs);
+    var posMarqueur = new OpenLayers.LonLat(2.475, 48.794).transform(
+        new OpenLayers.Projection("EPSG:4326"),
+        new OpenLayers.Projection("EPSG:900913")) //exemple d'insertion de marqueur. 
+    coucheMarqueurs.addMarker(new OpenLayers.Marker(posMarqueur));
+</script>
+<script type="module" src="main.js"></script>
+
+</html>
