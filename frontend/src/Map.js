@@ -35,23 +35,38 @@ const Map = ({ center = [48.7859896, 2.5122759], zoom = 13 }) => {
 		.addTo(mapInstanceRef.current)
 		.bindPopup('Hello from React 19!')
 		.openPopup();
-	}
+	};
+
+	mapInstanceRef.current.on('move', function() {
+		// Get bounds in lat/lng
+		const bounds = this.getBounds();
+		
+		// Extract individual corners
+		const southWest = bounds.getSouthWest();
+		const northEast = bounds.getNorthEast();
+		
+		console.log('Map Bounds:');
+		console.log('South-West:', southWest.lat, southWest.lng);
+		console.log('North-East:', northEast.lat, northEast.lng);
+		console.log('Center:', this.getCenter());
+	});
+
 
 	// Cleanup on unmount
 	return () => {
-	  if (mapInstanceRef.current) {
+		if (mapInstanceRef.current) {
 		mapInstanceRef.current.remove();
 		mapInstanceRef.current = null;
-	  }
+		}
 	};
-  }, [center, zoom]);
+	}, [center, zoom]);
 
-  return (
+	return (
 	<div 
-	  ref={mapRef} 
-	  class="map"
+		ref={mapRef} 
+		class="map"
 	/>
-  );
+	);
 };
 
 export default Map;
