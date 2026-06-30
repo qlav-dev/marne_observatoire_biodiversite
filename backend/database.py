@@ -49,4 +49,6 @@ if __name__ == "__main__":
     db.load_from_csv(r"Naiades_filter/fauneflore_94.csv", table_name="FauneFlore", sep = ";", on_bad_lines="skip", dtype=str)
     db.load_from_csv(r"Naiades_filter/resultat_94.csv", table_name="Resultats", sep = ";", on_bad_lines="skip", dtype=str)
     db.load_from_csv(r"Naiades_filter/stations.csv", table_name="Stations", sep = ";", on_bad_lines="skip", dtype=str)
-
+    db.load_from_csv(r"Naiades_filter/stations.csv", table_name="Stations", sep = ";", on_bad_lines="skip", dtype=str)
+    db.load_from_csv(r"Naiades_filter/Analyses_Ammonium.csv", table_name="Ammonium", sep = ";", on_bad_lines="skip", dtype=str)
+    
