@@ -20,8 +20,16 @@ root.render(
       <div class="three"> <div className="checkbox-container">
     <input type="checkbox" id="monCheckboxUnique" className="custom-checkbox-input"/>
     <label htmlFor="monCheckboxUnique" className="custom-checkbox-label">Essai</label>
+    
 
 </div>
+<div className="checkbox-container">
+    <input type="checkbox" id="monCheckboxUnique" className="custom-checkbox-input"/>
+    <label htmlFor="monCheckboxUnique" className="custom-checkbox-label">Essai 2</label> </div>
+
+<div className="checkbox-container">
+    <input type="checkbox" id="monCheckboxUnique" className="custom-checkbox-input"/>
+    <label htmlFor="monCheckboxUnique" className="custom-checkbox-label">Essai 3</label> </div>
   
 </div>
 <div class= "quatre"> Ce site a été réalisé par des Etudiants des Mines</div> 
