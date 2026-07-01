@@ -41,7 +41,8 @@ def get_stations_zone(lat1: float, lon1: float, lat2: float, lon2: float):
         query = """
             SELECT LbStationMesureEauxSurface AS nom, 
                     CoordXStationMesureEauxSurface AS lambert_x, 
-                    CoordYStationMesureEauxSurface AS lambert_y
+                    CoordYStationMesureEauxSurface AS lambert_y,
+                    CdStationMesureEauxSurface AS CdStationMesureEauxSurface
             FROM Stations
             WHERE CoordXStationMesureEauxSurface IS NOT NULL
             AND CAST(CoordXStationMesureEauxSurface AS REAL) BETWEEN ? AND ?
@@ -72,7 +73,8 @@ def get_stations_zone(lat1: float, lon1: float, lat2: float, lon2: float):
             "lambert_x": float(row["lambert_x"]),
             "lambert_y": float(row["lambert_y"]),
             "latitude": lat,
-            "longitude": lon
+            "longitude": lon,
+            "code":  row["CdStationMesureEauxSurface"]
         })
 
     return {
@@ -85,6 +87,36 @@ def get_stations_zone(lat1: float, lon1: float, lat2: float, lon2: float):
         },
         "stations": stations
     }
+
+@app.get("/station-observations")
+def get_station_observations(code_station: int):
+    conn = sqlite3.connect("naiades_database.db")
+    cursor = conn.cursor()
+
+    try:
+        query = """
+            SELECT * FROM Operations WHERE CdStationMesureEauxSurface = ? ORDER BY DateDebutOperationPrelBio DESC
+        """
+
+        cursor.execute(query, (code_station, ))
+        result = cursor.fetchall()
+
+    except sqlite3.OperationalError as e:
+        conn.close()
+        raise HTTPException(
+            status_code=500,
+            detail = f"Erreur SQL"
+        )
+    
+    conn.close()
+
+    if not result:
+        raise HTTPException(
+            status_code=500,
+            detail = f"Erreur SQL"
+        )
+
+    return result
 
 @app.get("/station-infos")
 def get_station_infos(code_station: int):
