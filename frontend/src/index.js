@@ -8,8 +8,10 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <div>
-     <h1>Carte des points d'observation</h1> 
+     <h1 className="h1">Observatoire de la Biodiversité</h1> 
+     <p className="intro"> Ce site permet de visualiser les données de biodiversité collectées dans la région.</p>
     </div>
+
    
     
     <div class= "wrapper">
@@ -29,7 +31,7 @@ root.render(
 
 <div className="checkbox-container">
     <input type="checkbox" id="monCheckboxUnique" className="custom-checkbox-input"/>
-    <label htmlFor="monCheckboxUnique" className="custom-checkbox-label">Essai 3</label> </div>
+    <label htmlFor="monCheckboxUnique" className="custom-checkbox-label">Essai 3 </label> </div>
   
 </div>
 <div class= "quatre"> Ce site a été réalisé par des Etudiants des Mines</div> 

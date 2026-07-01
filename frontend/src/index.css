@@ -10,6 +10,7 @@ body {
   min-height: 100vh;     
   overflow-y: auto;
   overflow-x: hidden;
+  background-color: beige;
 
 }
 
@@ -49,6 +50,7 @@ code {
   grid-row: 1; 
   background: #f9f9f9;
   padding: 20px;
+  color:rgb(90, 154, 94);
   box-sizing: border-box;
   overflow-y: auto;
   font-weight: bold;
@@ -115,3 +117,8 @@ code {
   cursor: pointer;
   font-size: 14px;
   user-select: none;}
+
+.intro {color:rgb(54, 124, 81)}
+
+.h1 {
+  text-align: center; color: rgb(17, 94, 17)}
