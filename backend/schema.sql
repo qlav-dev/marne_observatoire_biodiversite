@@ -5,8 +5,8 @@ CREATE TABLE IF NOT EXISTS Stations (
     CdStationMesureEauxSurface INT PRIMARY KEY,
     LbStationMesureEauxSurface TEXT,
     DurStationMesureEauxSurface TEXT,
-    CoordXStationMesureEauxSurface TEXT,
-    CoordYStationMesureEauxSurface TEXT,
+    CoordXStationMesureEauxSurface REAL,
+    CoordYStationMesureEauxSurface REAL,
     CdProjStationMesureEauxSurface TEXT,
     LibelleProjection TEXT,
     CodeCommune TEXT,
@@ -272,3 +272,62 @@ SELECT
     CdAccredRsIndiceResultatBiologique AS AccreditationId,
     MnAccredRsIndiceResultatBiologique AS AccreditationCode
 FROM Resultats;
+
+
+CREATE TABLE IF NOT EXISTS Ammonium (
+    CdStationMesureEauxSurface INTEGER
+    LbStationMesureEauxSurface TEXT
+    CdSupport INTEGER
+    LbSupport TEXT
+    CdFractionAnalysee INTEGER
+    LbFractionAnalysee TEXT
+    CdPrelevement INTEGER
+    DatePrel DATE 
+    HeurePre HOUR
+    DateAna DATE 
+    HeureAna HOUR
+    CdParametre INTEGER
+    LbLongParamètre TEXT
+    RsAna REAL 
+    CdUniteMesure INTEGER
+    SymUniteMesure TEXT
+);
+
+CREATE TABLE IF NOT EXISTS Temperature (
+    CdStationMesureEauxSurface INTEGER
+    LbStationMesureEauxSurface TEXT
+    CdSupport INTEGER
+    LbSupport TEXT
+    CdFractionAnalysee INTEGER
+    LbFractionAnalysee TEXT
+    CdPrelevement INTEGER
+    DatePrel DATE 
+    HeurePre HOUR
+    DateAna DATE 
+    HeureAna HOUR
+    CdParametre INTEGER
+    LbLongParamètre TEXT
+    RsAna REAL 
+    CdUniteMesure INTEGER
+    SymUniteMesure TEXT
+);
+
+CREATE TABLE IF NOT EXISTS DBO5 (
+    CdStationMesureEauxSurface INTEGER
+    LbStationMesureEauxSurface TEXT
+    CdSupport INTEGER
+    LbSupport TEXT
+    CdFractionAnalysee INTEGER
+    LbFractionAnalysee TEXT
+    CdPrelevement INTEGER
+    DatePrel DATE 
+    HeurePre HOUR
+    DateAna DATE 
+    HeureAna HOUR
+    CdParametre INTEGER
+    LbLongParamètre TEXT
+    RsAna REAL 
+    CdUniteMesure INTEGER
+    SymUniteMesure TEXT
+);
+

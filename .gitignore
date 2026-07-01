@@ -1,4 +1,6 @@
-Naiades_Export_France_Entiere_HB/*
+
 *.largefile
 
 */__pycache__/*
+
+*.lock
