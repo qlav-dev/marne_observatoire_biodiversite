@@ -16,9 +16,10 @@ filtered_df.to_csv("filtre_donnees_animaux/animaux_protege_94.csv", sep=";", ind
 filtered_df["LB_NOM"] = filtered_df["LB_NOM"].str.strip().str.lower()
 animaux94["NomLatinAppelTaxon"] = animaux94["NomLatinAppelTaxon"].str.strip().str.lower()
 
+filtered_df_unique = filtered_df.drop_duplicates(subset=["LB_NOM"])
 
 merged = animaux94.merge(
-    filtered_df,
+    filtered_df_unique,
     left_on="NomLatinAppelTaxon",
     right_on="LB_NOM",
     how="left"
@@ -33,7 +34,12 @@ colonnes_a_supprimer = [
     "NOM_VALIDE_HTML",
     "CD_ISO3166_2",
     "FULL_CITATION",
-    "DOC_URL"
+    "DOC_URL",
+    "LB_ADM_TR",
+    "NIVEAU_ADMIN",
+    "CD_ISO3166_1",
+    "CD_DOC",
+    "RQ_STATUT"
 ]
 merged = merged.drop(columns=colonnes_a_supprimer, errors="ignore")
 
