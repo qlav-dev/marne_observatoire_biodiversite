@@ -38,6 +38,14 @@ def get_db_connection():
     finally:
         conn.close()
 
+def get_db_connection_eau():
+    conn = sqlite3.connect("eau_database.db")
+    conn.row_factory = sqlite3.Row
+    try:
+        yield conn
+    finally:
+        conn.close()
+
 
 @app.get("/stations-zone")
 def get_stations_zone(lat1: float, lon1: float, lat2: float, lon2: float):
@@ -234,6 +242,41 @@ def convert_latlng_to_lambert(lat: float, lng: float):
         )
 
 
+@app.get("/station-eau-evolution")
+def get_station_eau_evolution(code_station: int, db: sqlite3.Connection = Depends(get_db_connection_eau)):
+    cursor = db.cursor()
+    db.row_factory = sqlite3.Row
+
+    def fetch_parametre(nom_table):
+        query = f"""
+            SELECT DatePrel AS date_prelevement, RsAna AS resultat, SymUniteMesure AS unite
+            FROM {nom_table}
+            WHERE CdStationMesureEauxSurface = ? AND RsAna IS NOT NULL AND DatePrel IS NOT NULL
+            ORDER BY DatePrel ASC;
+        """
+        cursor.execute(query, (code_station,))
+        return [dict(row) for row in cursor.fetchall()]
+    
+    try:
+        donnees_ammonium = fetch_parametre("ammonium")
+        donnees_dbo5 = fetch_parametre("DBO5")
+        donnees_temperature = fetch_parametre("temperature")
+        
+    except sqlite3.OperationalError as e:
+        raise HTTPException(status_code=500, detail=f"Erreur SQL : {e}")
+
+    
+    return {
+            "code_station": code_station,
+            "parametres": {
+                "ammonium": donnees_ammonium,
+                "dbo5": donnees_dbo5,
+                "temperature": donnees_temperature
+            }
+        }
+
+
+
 @app.get("/station-animaux-evolution")
 def get_station_animaux_evolution(code_station: int, db: sqlite3.Connection = Depends(get_db_connection)):
     cursor = db.cursor()
@@ -246,7 +289,7 @@ def get_station_animaux_evolution(code_station: int, db: sqlite3.Connection = De
                 SUM(CAST(RsTaxRep AS REAL)) AS abondance,
                 SymUniteMesure AS unite,
                 LABEL_STATUT AS statut_protection
-            FROM AnimauxProteges
+            FROM 
             WHERE CdStationMesureEauxSurface = ? 
               AND RsTaxRep IS NOT NULL 
               AND DateDebutOperationPrelBio IS NOT NULL

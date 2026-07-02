@@ -40,15 +40,8 @@ class database:
 
 if __name__ == "__main__":
     db = database(
-        DB_PATH = f"{Path(__file__).parent}/naiades_database.db",
+        DB_PATH = f"{Path(__file__).parent}/database.db",
         SCHEMA_PATH = Path(__file__).parent / "schema.sql"
     )
 
-    db.load_from_csv(r"Naiades_filter/operation_94.csv", table_name="Operations", sep = ";", on_bad_lines="skip", dtype=str)
-    db.load_from_csv(r"Naiades_filter/cep_94.csv", table_name="CEP", sep = ";", on_bad_lines="skip", dtype=str)
-    db.load_from_csv(r"Naiades_filter/fauneflore_94.csv", table_name="FauneFlore", sep = ";", on_bad_lines="skip", dtype=str)
-    db.load_from_csv(r"Naiades_filter/resultat_94.csv", table_name="Resultats", sep = ";", on_bad_lines="skip", dtype=str)
-    db.load_from_csv(r"Naiades_filter/stations.csv", table_name="Stations", sep = ";", on_bad_lines="skip", dtype=str)
-    db.load_from_csv(r"filtre_donnees_animaux/ammonium.csv", table_name="Ammonium", sep = ";", on_bad_lines="skip", dtype=str)
-    db.load_from_csv(r"filtre_donnees_animaux/temp.csv", table_name="Temperature", sep = ";", on_bad_lines="skip", dtype=str)
-    db.load_from_csv(r"filtre_donnees_animaux/dbo5.csv", table_name="DBO5", sep = ";", on_bad_lines="skip", dtype=str)
+    db.load_from_csv(r"filtre_donnees_animaux/fauneflore_94_protege.csv", table_name="AnimauxProteges", sep = ";", on_bad_lines="skip", dtype=str)
