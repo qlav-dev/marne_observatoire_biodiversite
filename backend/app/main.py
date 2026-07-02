@@ -2,6 +2,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, HTTPException, Depends
 from pydantic import BaseModel
 from pyproj import Transformer
+from typing import Optional
 import math
 import sqlite3
 
@@ -23,6 +24,14 @@ app.add_middleware(
 transformer_to_lambert = Transformer.from_crs("EPSG:4326", "EPSG:2154", always_xy=True)
 # Transformer for Lat/Lng to Lambert (inverse)
 transformer_to_wgs84 = Transformer.from_crs("EPSG:2154", "EPSG:4326", always_xy=True)
+
+def get_db_connection():
+    conn = sqlite3.connect("naiades_database.db")
+    conn.row_factory = sqlite3.Row
+    try:
+        yield conn
+    finally:
+        conn.close()
 
 @app.get("/stations-zone")
 def get_stations_zone(lat1: float, lon1: float, lat2: float, lon2: float):
@@ -120,7 +129,7 @@ def get_station_observations(code_station: int):
     return result
 
 @app.get("/station-infos")
-def get_station_infos(code_station: int):
+def get_station_infos(code_station: int, filtres: Optional[str] = None):
     conn = sqlite3.connect("naiades_database.db")
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
@@ -151,15 +160,16 @@ def get_station_infos(code_station: int):
             detail=f"Aucune station trouvée ayant le code : '{code_station}'"
         )
 
-    # Convert to dict and add lat/lng if coordinates exist
     station_dict = dict(result)
-    if station_dict.get('CoordXStationMesureEauxSurface') and station_dict.get('CoordYStationMesureEauxSurface'):
-        lon, lat = transformer_to_wgs84.transform(
-            float(station_dict['CoordXStationMesureEauxSurface']),
-            float(station_dict['CoordYStationMesureEauxSurface'])
-        )
-        station_dict['latitude'] = lat
-        station_dict['longitude'] = lon
+
+    if filtres:
+
+        champs_demandes = [champ.strip() for champ in filtres.split(",")]
+        donnees_station = {
+            cle: valeur 
+            for cle, valeur in donnees_station.items() 
+            if cle in champs_demandes
+        }
 
     return {
         "station_infos": station_dict
@@ -204,6 +214,63 @@ def convert_latlng_to_lambert(lat: float, lng: float):
             status_code=400,
             detail=f"Erreur de conversion: {str(e)}"
         )
+    
+
+
+@app.get("/station-animaux-evolution")
+def get_station_animaux_evolution(code_station: int, db: sqlite3.Connection = Depends(get_db_connection)):
+    cursor = db.cursor()
+    try:
+        query = f"""
+            SELECT 
+                DateDebutOperationPrelBio AS date_mesure,
+                NomLatinAppelTaxon AS espece_latin,
+                LbListeFauFlor AS espece_commun,
+                SUM(CAST(RsTaxRep AS REAL)) AS abondance,
+                SymUniteMesure AS unite,
+                LABEL_STATUT AS statut_protection
+            FROM AnimauxProteges
+            WHERE CdStationMesureEauxSurface = ? 
+              AND RsTaxRep IS NOT NULL 
+              AND DateDebutOperationPrelBio IS NOT NULL
+            GROUP BY DateDebutOperationPrelBio, NomLatinAppelTaxon
+            ORDER BY DateDebutOperationPrelBio ASC;
+        """
+        cursor.execute(query, (code_station,))
+        results = cursor.fetchall()
+    except sqlite3.OperationalError as e:
+        raise HTTPException(status_code=500, detail=f"Erreur lors du croisement des données : {e}. Vérifie tes tables.")
+
+    if not results:
+        return {
+            "code_station": code_station,
+            "message": "Aucun recensement d'animal protégé répertorié à cette station.",
+            "donnees_evolution": []
+        }
+
+    # 3. Structuration de l'historique chronologique pour le graphique du site
+    historique = []
+    liste_especes_presentes = set()
+    
+    for row in results:
+        liste_especes_presentes.add(row["espece_latin"])
+        historique.append({
+            "date": row["date_mesure"],
+            "espece_latin": row["espece_latin"],
+            "espece_commun": row["espece_commun"] if row["espece_commun"] else "Inconnu",
+            "abondance": row["abondance"],
+            "unite": row["unite"] if row["unite"] else "individus",
+            "statut_protection": row["statut_protection"]
+        })
+
+    return {
+        "metadonnees": {
+            "code_station": code_station,
+            "total_especes_protegees_trouvees": len(liste_especes_presentes),
+            "liste_especes": list(liste_especes_presentes)
+        },
+        "donnees_evolution": historique
+    }
 
 if __name__ == "__main__":
     import uvicorn
