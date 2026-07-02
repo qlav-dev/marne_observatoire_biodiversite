@@ -15,8 +15,26 @@ async function getStationsInZone(lat1, lat2, lon1, lon2) {
         return data;
     } catch (error) {
         console.error('Erreur lors de la récupération des stations:', error);
-        return { stations: [] };
+		return { stations: [] };
     }
+}
+
+async function getObservations(station_id)
+{
+    try {
+        const url = `http://127.0.0.1:8000/station-observations?code_station=${station_id}`;
+        const response = await fetch(url)
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+        return data;
+    }
+
+    catch (error)
+    {
+        console.error('Erreur lors de la recuperation des observations', error);
+        return {}
+    }
+
 }
 
 const DefaultIcon = L.icon({
@@ -52,10 +70,14 @@ const Map = ({ center = [48.7859896, 2.5122759], zoom = 13 }) => {
 
             // Add new markers
             stations_in_zone.stations?.forEach((station) => {
-                //console.log('Adding marker:', station.nom);
-                L.marker([station.latitude, station.longitude])
+                const marker = L.marker([station.latitude, station.longitude])
                     .addTo(map)
                     .bindPopup(station.nom);
+
+				marker.on("click", async function(e) {
+                    const observations = await getObservations(station.code);
+					console.log(observations)
+				});
             });
 
         } catch (error) {
