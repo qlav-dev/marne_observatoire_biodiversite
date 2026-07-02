@@ -1,0 +1,12 @@
+{
+  "devDependencies": {
+    "concurrently": "^10.0.3"
+  },
+  "name": "fullstack-app",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
+    "backend": "cd backend && uvicorn app.main:app --reload --port 8000",
+    "frontend": "cd frontend && npm install && npm start"
+  }
+}

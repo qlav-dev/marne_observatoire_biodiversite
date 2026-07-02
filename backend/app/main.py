@@ -2,9 +2,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, HTTPException, Depends
 from pydantic import BaseModel
 from pyproj import Transformer
-from typing import Optional
+from typing import Optional, List, Dict, Any
 import math
 import sqlite3
+
+DATABASE_PATH = "database.db"
 
 app = FastAPI()
 
@@ -21,86 +23,98 @@ app.add_middleware(
 )
 
 # Transformer for Lambert to Lat/Lng
-transformer_to_lambert = Transformer.from_crs("EPSG:4326", "EPSG:2154", always_xy=True)
+transformer_to_lambert = Transformer.from_crs(
+    "EPSG:4326", "EPSG:2154", always_xy=True)
 # Transformer for Lat/Lng to Lambert (inverse)
-transformer_to_wgs84 = Transformer.from_crs("EPSG:2154", "EPSG:4326", always_xy=True)
+transformer_to_wgs84 = Transformer.from_crs(
+    "EPSG:2154", "EPSG:4326", always_xy=True)
+
 
 def get_db_connection():
-    conn = sqlite3.connect("naiades_database.db")
+    conn = sqlite3.connect(DATABASE_PATH)
     conn.row_factory = sqlite3.Row
     try:
         yield conn
     finally:
         conn.close()
 
+
 @app.get("/stations-zone")
 def get_stations_zone(lat1: float, lon1: float, lat2: float, lon2: float):
-    
-    x1, y1 = transformer_to_lambert.transform(lon1, lat1)
-    x2, y2 = transformer_to_lambert.transform(lon2, lat2)
-
-    min_x, max_x = min(x1, x2), max(x1, x2)
-    min_y, max_y = min(y1, y2), max(y1, y2)
-
-    conn = sqlite3.connect("naiades_database.db")
-    conn.row_factory = sqlite3.Row
-    cursor = conn.cursor()
-
     try:
-        query = """
-            SELECT LbStationMesureEauxSurface AS nom, 
-                    CoordXStationMesureEauxSurface AS lambert_x, 
-                    CoordYStationMesureEauxSurface AS lambert_y,
-                    CdStationMesureEauxSurface AS CdStationMesureEauxSurface
-            FROM Stations
-            WHERE CoordXStationMesureEauxSurface IS NOT NULL
-            AND CAST(CoordXStationMesureEauxSurface AS REAL) BETWEEN ? AND ?
-            AND CAST(CoordYStationMesureEauxSurface AS REAL) BETWEEN ? AND ?
-            AND CodeDepartement = '94'
-        """
-        
-        cursor.execute(query, (min_x, max_x, min_y, max_y))
-        results = cursor.fetchall()
+        x1, y1 = transformer_to_lambert.transform(lon1, lat1)
+        x2, y2 = transformer_to_lambert.transform(lon2, lat2)
 
-    except sqlite3.OperationalError as e:
+        min_x, max_x = min(x1, x2), max(x1, x2)
+        min_y, max_y = min(y1, y2), max(y1, y2)
+
+        conn = sqlite3.connect(DATABASE_PATH)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        try:
+            query = """
+                SELECT LbStationMesureEauxSurface AS nom, 
+                        CoordXStationMesureEauxSurface AS lambert_x, 
+                        CoordYStationMesureEauxSurface AS lambert_y,
+                        CdStationMesureEauxSurface AS CdStationMesureEauxSurface
+                FROM Stations
+                WHERE CoordXStationMesureEauxSurface IS NOT NULL
+                AND CAST(CoordXStationMesureEauxSurface AS REAL) BETWEEN ? AND ?
+                AND CAST(CoordYStationMesureEauxSurface AS REAL) BETWEEN ? AND ?
+                AND CodeDepartement = '94'
+            """
+
+            cursor.execute(query, (min_x, max_x, min_y, max_y))
+            results = cursor.fetchall()
+
+        except sqlite3.OperationalError as e:
+            conn.close()
+            raise HTTPException(
+                status_code=500,
+                detail=f"Erreur SQL. Erreur : {e}",
+            )
+
         conn.close()
+
+        stations = []
+        for row in results:
+            # Convert Lambert to Lat/Lng for each station
+            # CORRECTION: il y avait une erreur ici, on passait x deux fois
+            lon, lat = transformer_to_wgs84.transform(
+                float(row["lambert_x"]),
+                float(row["lambert_y"])
+            )
+            stations.append({
+                "nom": row["nom"],
+                "lambert_x": float(row["lambert_x"]),
+                "lambert_y": float(row["lambert_y"]),
+                "latitude": lat,
+                "longitude": lon,
+                "code": row["CdStationMesureEauxSurface"]
+            })
+
+        return {
+            "metadonnees": {
+                "nombre_stations_trouvees": len(stations),
+                "zone_lambert93": {
+                    "x_min": round(min_x, 2), "x_max": round(max_x, 2),
+                    "y_min": round(min_y, 2), "y_max": round(max_y, 2)
+                }
+            },
+            "stations": stations
+        }
+    except Exception as e:
         raise HTTPException(
             status_code=500,
-            detail=f"Erreur SQL. Erreur : {e}",
+            detail=f"Erreur lors du traitement: {str(e)}"
         )
 
-    conn.close()
-
-    stations = []
-    for row in results:
-        # Convert Lambert to Lat/Lng for each station
-        lon, lat = transformer_to_wgs84.transform(
-            float(row["lambert_x"]), 
-            float(row["lambert_y"])
-        )
-        stations.append({
-            "nom": row["nom"],
-            "lambert_x": float(row["lambert_x"]),
-            "lambert_y": float(row["lambert_y"]),
-            "latitude": lat,
-            "longitude": lon,
-            "code":  row["CdStationMesureEauxSurface"]
-        })
-
-    return {
-        "metadonnees": {
-            "nombre_stations_trouvees": len(stations),
-            "zone_lambert93": {
-                "x_min": round(min_x, 2), "x_max": round(max_x, 2),
-                "y_min": round(min_y, 2), "y_max": round(max_y, 2)
-            }
-        },
-        "stations": stations
-    }
 
 @app.get("/station-observations")
 def get_station_observations(code_station: int):
-    conn = sqlite3.connect("naiades_database.db")
+    conn = sqlite3.connect(DATABASE_PATH)
+    conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
     try:
@@ -108,40 +122,46 @@ def get_station_observations(code_station: int):
             SELECT * FROM Operations WHERE CdStationMesureEauxSurface = ? ORDER BY DateDebutOperationPrelBio DESC
         """
 
-        cursor.execute(query, (code_station, ))
-        result = cursor.fetchall()
+        cursor.execute(query, (code_station,))
+        results = cursor.fetchall()
 
     except sqlite3.OperationalError as e:
         conn.close()
         raise HTTPException(
             status_code=500,
-            detail = f"Erreur SQL"
+            detail=f"Erreur SQL: {str(e)}",
         )
-    
+
     conn.close()
 
-    if not result:
+    if not results:
+        # Correction: retourner 404 si aucune observation trouvée
         raise HTTPException(
-            status_code=500,
-            detail = f"Erreur SQL"
+            status_code=404,
+            detail=f"Aucune observation trouvée pour la station {code_station}",
         )
 
-    return result
+    # Conversion des résultats en liste de dictionnaires
+    observations = []
+    for row in results:
+        observations.append(dict(row))
+
+    return observations
+
 
 @app.get("/station-infos")
-def get_station_infos(code_station: int, filtres: Optional[str] = None):
-    conn = sqlite3.connect("naiades_database.db")
+def get_station_infos(code_station: int):
+    conn = sqlite3.connect(DATABASE_PATH)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
     try:
-        # On utilise LIKE pour chercher une correspondance partielle
         query = """
             SELECT * FROM Stations 
             WHERE CdStationMesureEauxSurface = ?
             LIMIT 1;
         """
-        
+
         cursor.execute(query, (code_station,))
         result = cursor.fetchone()
 
@@ -156,26 +176,24 @@ def get_station_infos(code_station: int, filtres: Optional[str] = None):
 
     if not result:
         raise HTTPException(
-            status_code=404, 
+            status_code=404,
             detail=f"Aucune station trouvée ayant le code : '{code_station}'"
         )
 
     station_dict = dict(result)
-
-    if filtres:
-
-        champs_demandes = [champ.strip() for champ in filtres.split(",")]
-        donnees_station = {
-            cle: valeur 
-            for cle, valeur in donnees_station.items() 
-            if cle in champs_demandes
-        }
+    if station_dict.get('CoordXStationMesureEauxSurface') and station_dict.get('CoordYStationMesureEauxSurface'):
+        lon, lat = transformer_to_wgs84.transform(
+            float(station_dict['CoordXStationMesureEauxSurface']),
+            float(station_dict['CoordYStationMesureEauxSurface'])
+        )
+        station_dict['latitude'] = lat
+        station_dict['longitude'] = lon
 
     return {
         "station_infos": station_dict
     }
 
-# New endpoint to convert Lambert coordinates to Lat/Lng
+
 @app.get("/convert-lambert-to-latlng")
 def convert_lambert_to_latlng(x: float, y: float):
     """
@@ -195,7 +213,7 @@ def convert_lambert_to_latlng(x: float, y: float):
             detail=f"Erreur de conversion: {str(e)}"
         )
 
-# New endpoint to convert Lat/Lng to Lambert
+
 @app.get("/convert-latlng-to-lambert")
 def convert_latlng_to_lambert(lat: float, lng: float):
     """
@@ -214,14 +232,13 @@ def convert_latlng_to_lambert(lat: float, lng: float):
             status_code=400,
             detail=f"Erreur de conversion: {str(e)}"
         )
-    
 
 
 @app.get("/station-animaux-evolution")
 def get_station_animaux_evolution(code_station: int, db: sqlite3.Connection = Depends(get_db_connection)):
     cursor = db.cursor()
     try:
-        query = f"""
+        query = """
             SELECT 
                 DateDebutOperationPrelBio AS date_mesure,
                 NomLatinAppelTaxon AS espece_latin,
@@ -239,7 +256,8 @@ def get_station_animaux_evolution(code_station: int, db: sqlite3.Connection = De
         cursor.execute(query, (code_station,))
         results = cursor.fetchall()
     except sqlite3.OperationalError as e:
-        raise HTTPException(status_code=500, detail=f"Erreur lors du croisement des données : {e}. Vérifie tes tables.")
+        raise HTTPException(
+            status_code=500, detail=f"Erreur lors du croisement des données : {e}. Vérifie tes tables.")
 
     if not results:
         return {
@@ -248,19 +266,21 @@ def get_station_animaux_evolution(code_station: int, db: sqlite3.Connection = De
             "donnees_evolution": []
         }
 
-    # 3. Structuration de l'historique chronologique pour le graphique du site
+    # Structuration de l'historique chronologique pour le graphique du site
     historique = []
     liste_especes_presentes = set()
-    
+
     for row in results:
-        liste_especes_presentes.add(row["espece_latin"])
+        # Assurer que row est un dictionnaire ou un objet Row
+        row_dict = dict(row) if hasattr(row, 'keys') else row
+        liste_especes_presentes.add(row_dict["espece_latin"])
         historique.append({
-            "date": row["date_mesure"],
-            "espece_latin": row["espece_latin"],
-            "espece_commun": row["espece_commun"] if row["espece_commun"] else "Inconnu",
-            "abondance": row["abondance"],
-            "unite": row["unite"] if row["unite"] else "individus",
-            "statut_protection": row["statut_protection"]
+            "date": row_dict["date_mesure"],
+            "espece_latin": row_dict["espece_latin"],
+            "espece_commun": row_dict["espece_commun"] if row_dict["espece_commun"] else "Inconnu",
+            "abondance": float(row_dict["abondance"]) if row_dict["abondance"] else 0,
+            "unite": row_dict["unite"] if row_dict["unite"] else "individus",
+            "statut_protection": row_dict["statut_protection"]
         })
 
     return {
@@ -272,6 +292,20 @@ def get_station_animaux_evolution(code_station: int, db: sqlite3.Connection = De
         "donnees_evolution": historique
     }
 
+
+@app.get("/")
+def root():
+    return {
+        "message": "API Naiades - Stations de mesure",
+        "endpoints": [
+            "/stations-zone",
+            "/station-observations",
+            "/station-infos",
+            "/convert-lambert-to-latlng",
+            "/convert-latlng-to-lambert",
+            "/station-animaux-evolution"
+        ]
+    }
 
 
 if __name__ == "__main__":
