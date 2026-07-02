@@ -5,6 +5,8 @@ from pyproj import Transformer
 import math
 import sqlite3
 
+DATABASE_PATH = "database.db"
+
 app = FastAPI()
 
 app.add_middleware(
@@ -20,20 +22,23 @@ app.add_middleware(
 )
 
 # Transformer for Lambert to Lat/Lng
-transformer_to_lambert = Transformer.from_crs("EPSG:4326", "EPSG:2154", always_xy=True)
+transformer_to_lambert = Transformer.from_crs(
+    "EPSG:4326", "EPSG:2154", always_xy=True)
 # Transformer for Lat/Lng to Lambert (inverse)
-transformer_to_wgs84 = Transformer.from_crs("EPSG:2154", "EPSG:4326", always_xy=True)
+transformer_to_wgs84 = Transformer.from_crs(
+    "EPSG:2154", "EPSG:4326", always_xy=True)
+
 
 @app.get("/stations-zone")
 def get_stations_zone(lat1: float, lon1: float, lat2: float, lon2: float):
-    
+
     x1, y1 = transformer_to_lambert.transform(lon1, lat1)
     x2, y2 = transformer_to_lambert.transform(lon2, lat2)
 
     min_x, max_x = min(x1, x2), max(x1, x2)
     min_y, max_y = min(y1, y2), max(y1, y2)
 
-    conn = sqlite3.connect("naiades_database.db")
+    conn = sqlite3.connect(DATABASE_PATH)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
@@ -48,7 +53,7 @@ def get_stations_zone(lat1: float, lon1: float, lat2: float, lon2: float):
             AND CAST(CoordXStationMesureEauxSurface AS REAL) BETWEEN ? AND ?
             AND CAST(CoordYStationMesureEauxSurface AS REAL) BETWEEN ? AND ?
         """
-        
+
         cursor.execute(query, (min_x, max_x, min_y, max_y))
         results = cursor.fetchall()
 
@@ -65,7 +70,7 @@ def get_stations_zone(lat1: float, lon1: float, lat2: float, lon2: float):
     for row in results:
         # Convert Lambert to Lat/Lng for each station
         lon, lat = transformer_to_wgs84.transform(
-            float(row["lambert_x"]), 
+            float(row["lambert_x"]),
             float(row["lambert_y"])
         )
         stations.append({
@@ -88,9 +93,10 @@ def get_stations_zone(lat1: float, lon1: float, lat2: float, lon2: float):
         "stations": stations
     }
 
+
 @app.get("/station-observations")
 def get_station_observations(code_station: int):
-    conn = sqlite3.connect("naiades_database.db")
+    conn = sqlite3.connect(DATABASE_PATH)
     cursor = conn.cursor()
 
     try:
@@ -105,22 +111,23 @@ def get_station_observations(code_station: int):
         conn.close()
         raise HTTPException(
             status_code=500,
-            detail = f"Erreur SQL"
+            detail=f"Erreur SQL"
         )
-    
+
     conn.close()
 
     if not result:
         raise HTTPException(
             status_code=500,
-            detail = f"Erreur SQL"
+            detail=f"Erreur SQL"
         )
 
     return result
 
+
 @app.get("/station-infos")
 def get_station_infos(code_station: int):
-    conn = sqlite3.connect("naiades_database.db")
+    conn = sqlite3.connect(DATABASE_PATH)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
@@ -131,7 +138,7 @@ def get_station_infos(code_station: int):
             WHERE CdStationMesureEauxSurface = ?
             LIMIT 1;
         """
-        
+
         cursor.execute(query, (code_station,))
         result = cursor.fetchone()
 
@@ -146,7 +153,7 @@ def get_station_infos(code_station: int):
 
     if not result:
         raise HTTPException(
-            status_code=404, 
+            status_code=404,
             detail=f"Aucune station trouvée ayant le code : '{code_station}'"
         )
 
@@ -165,6 +172,8 @@ def get_station_infos(code_station: int):
     }
 
 # New endpoint to convert Lambert coordinates to Lat/Lng
+
+
 @app.get("/convert-lambert-to-latlng")
 def convert_lambert_to_latlng(x: float, y: float):
     """
@@ -185,6 +194,8 @@ def convert_lambert_to_latlng(x: float, y: float):
         )
 
 # New endpoint to convert Lat/Lng to Lambert
+
+
 @app.get("/convert-latlng-to-lambert")
 def convert_latlng_to_lambert(lat: float, lng: float):
     """
@@ -203,6 +214,7 @@ def convert_latlng_to_lambert(lat: float, lng: float):
             status_code=400,
             detail=f"Erreur de conversion: {str(e)}"
         )
+
 
 if __name__ == "__main__":
     import uvicorn
