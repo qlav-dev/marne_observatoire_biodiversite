@@ -10,7 +10,7 @@ body {
   min-height: 100vh;     
   overflow-y: auto;
   overflow-x: hidden;
-  background-color: beige;
+  background-color: #f9f9f9;
 
 }
 
@@ -122,3 +122,45 @@ code {
 
 .h1 {
   text-align: center; color: rgb(17, 94, 17)}
+
+.accordion .container {
+  position: relative;
+  padding: 15px 0;
+  cursor: pointer;
+}
+
+.accordion .label {
+  font-weight: bold;
+  justify-content: space-between;
+  
+  margin-bottom: 5px;
+  color: rgb(17, 94, 17);
+  padding-right: 30px; 
+  display:block;
+  margin: 0;
+  line-height: 1.2;
+}
+
+
+.accordion .content {
+  background: white;
+  height: 0; /* Caché par défaut */
+  font-size: 14px;
+  width: 100%; /* S'adapte à ta colonne de droite, pas de 780px ! */
+  overflow: hidden;
+  transition: height 0.3s ease; /* Animation fluide */
+}
+
+.accordion hr {
+  width: 100%;
+  margin: 10px 0;
+  border: 0;
+  border-top: 1px solid grey;
+}
+
+
+
+.accordion .container.active .content {
+  height: auto !important;
+  overflow: visible;
+}
