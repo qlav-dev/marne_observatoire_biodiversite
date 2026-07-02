@@ -1,0 +1,40 @@
+.styled-table {
+border-collapse: collapse; 
+  margin: 25px 0;
+  font-size: 0.9em;
+  font-family: sans-serif;
+  width: 100%;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.05); 
+  border-radius: 5px 5px 0 0;
+  overflow: hidden;
+}
+
+.styled-table thead tr {
+  color: #138e38;
+  text-align: left;
+  font-weight: bold;
+}
+
+.styled-table th,
+.styled-table td {
+  padding: 12px 15px;
+}
+
+table tr {
+  border-bottom: 1px solid #dddddd; /* Crée un trait gris clair de 1 pixel */
+}
+
+
+#toggle-btn-graph {
+  background-color: rgb(141, 222, 175); 
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  display: block;
+  margin: 20px auto; 
+}
+
+#toggle-btn{background-color: rgb(236, 227, 183);border: 1px solid #ccc;
+  border-radius: 4px;cursor: pointer;
+  display: block;
+  margin: 20px auto;}
