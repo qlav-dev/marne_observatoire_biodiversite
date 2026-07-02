@@ -4,9 +4,9 @@ import os
 
 dossier_actuel = os.path.dirname(os.path.abspath(__file__))
 
-fichier_csv = os.path.join(dossier_actuel, "ammonium.csv")
-nom_base_donnees = "eau_database.db"
-nom_table = "Ammonium" # Le nom de la table que tu cibles
+fichier_csv = os.path.join(dossier_actuel, "fauneflore_94_protege.csv")
+nom_base_donnees = "database.db"
+nom_table = "AnimauxProteges" # Le nom de la table que tu cibles
 
 # 2. Connexion à la base SQLite
 conn = sqlite3.connect(nom_base_donnees)
