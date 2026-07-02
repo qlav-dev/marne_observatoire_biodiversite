@@ -8,11 +8,11 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <div>
-     <h1 className="h1">Observatoire de la Biodiversité</h1> 
-     <p className="intro"> Ce site permet de visualiser les données de biodiversité collectées dans la région.</p>
+      <h1 className="h1">Observatoire de la Biodiversité</h1> 
+      <p className="intro"> Ce site permet de visualiser les données de biodiversité collectées dans la région.</p>
     </div>
 
-   
+
     
     <div class= "wrapper">
       <div class="one">
