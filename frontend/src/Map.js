@@ -6,8 +6,12 @@ import './map.css';
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 
-function updateObservations(observations)
+function updateHtml(station, observations, species)
 {
+    console.log(observations);
+    const titre_station = document.getElementById("titre_station");
+    titre_station.innerHTML = station.nom;
+
     const pd = document.getElementById("Point_deau")
     pd.innerHTML = "";
     
@@ -19,7 +23,7 @@ function updateObservations(observations)
 
         checkBox.type = "checkbox";
         checkBox.className = "checkBox";
-        label.innerHTML = x[7];
+        label.innerHTML = x["DateFinOperationPrelbio"];
 
         container.appendChild(
             checkBox
@@ -45,6 +49,25 @@ async function getStationsInZone(lat1, lat2, lon1, lon2) {
     } catch (error) {
         console.error('Erreur lors de la récupération des stations:', error);
 		return { stations: [] };
+    }
+}
+
+async function getSpecies(station_id)
+{
+    try
+    {
+        const url = `http://127.0.0.1:8000/station-animaux-evolution?code_station=${station_id}`;
+        const response = await fetch(url)
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+        console.log(data);
+        return data;
+    }
+
+    catch (error)
+    {
+        console.error("Erreur lors de la récuperation des especes", error);
+        return {};
     }
 }
 
@@ -100,12 +123,12 @@ const Map = ({ center = [48.7859896, 2.5122759], zoom = 13 }) => {
             // Add new markers
             stations_in_zone.stations?.forEach((station) => {
                 const marker = L.marker([station.latitude, station.longitude])
-                    .addTo(map)
-                    .bindPopup(station.nom);
+                    .addTo(map);
 
 				marker.on("click", async function(e) {
                     const observations = await getObservations(station.code);
-					updateObservations(observations)
+                    const species = await getSpecies(station.code);
+					updateHtml(station, observations, species);
 				});
             });
 

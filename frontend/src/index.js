@@ -18,10 +18,13 @@ root.render(
       <div class="one">
         <Map />
       </div>
-      <div class="two">Paramètres</div>
+      <div class="two">
+        <h2 class="Titre" id="titre_station">
+          Nom Station
+        </h2>
+      </div>
 
       <div class="three"> <div className="checkbox-container">
-
 
         <div class="accordion-body">
           <div class="accordion">
