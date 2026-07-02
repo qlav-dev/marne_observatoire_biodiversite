@@ -272,6 +272,8 @@ def get_station_animaux_evolution(code_station: int, db: sqlite3.Connection = De
         "donnees_evolution": historique
     }
 
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
