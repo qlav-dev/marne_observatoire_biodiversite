@@ -8,8 +8,8 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <div>
-      <h1 className="h1">Observatoire de la Biodiversité</h1>
-      <p className="intro"> Ce site permet de visualiser les données de biodiversité collectées dans la région.</p>
+      <h1 className="h1">Observatoire de la Biodiversité dans la Marne</h1>
+      <p className="intro"> Ce site permet de visualiser les données de biodiversité collectées dans le département de la Marne. Ces données ont été récoltées à partir de database disponibles librement en ligne.</p>
     </div>
 
 
