@@ -1,4 +1,4 @@
-,CdStationMesureEauxSurface,LbStationMesureEauxSurface,CdSupport,LbSupport,CdFractionAnalysee,LbFractionAnalysee,CdPrelevement,DatePrel,HeurePrel,DateAna,HeureAna,CdParametre,LbLongParamètre,RsAna,CdUniteMesure,SymUniteMesure
+Id,CdStationMesureEauxSurface,LbStationMesureEauxSurface,CdSupport,LbSupport,CdFractionAnalysee,LbFractionAnalysee,CdPrelevement,DatePrel,HeurePrel,DateAna,HeureAna,CdParametre,LbLongParamètre,RsAna,CdUniteMesure,SymUniteMesure
 0,03063000,LA SEINE A ABLON-SUR-SEINE 2,3,Eau,23,Eau brute,20230419085527-PC-543005,2023-07-06,15:04:00,2023-07-06,15:04:00,1301,Température de l'Eau,23.9,27,°C
 1,03063000,LA SEINE A ABLON-SUR-SEINE 2,3,Eau,23,Eau brute,20230516131746-PC-544663,2023-07-10,12:34:00,2023-07-10,12:34:00,1301,Température de l'Eau,24.6,27,°C
 2,03063000,LA SEINE A ABLON-SUR-SEINE 2,3,Eau,23,Eau brute,20230612103617-PC-546706,2023-08-21,15:50:00,2023-08-21,15:50:00,1301,Température de l'Eau,24.4,27,°C

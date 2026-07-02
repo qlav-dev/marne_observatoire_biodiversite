@@ -1,4 +1,4 @@
-,CdStationMesureEauxSurface,LbStationMesureEauxSurface,CdSupport,LbSupport,CdFractionAnalysee,LbFractionAnalysee,CdPrelevement,DatePrel,HeurePrel,DateAna,HeureAna,CdParametre,LbLongParamètre,RsAna,CdUniteMesure,SymUniteMesure
+Id,CdStationMesureEauxSurface,LbStationMesureEauxSurface,CdSupport,LbSupport,CdFractionAnalysee,LbFractionAnalysee,CdPrelevement,DatePrel,HeurePrel,DateAna,HeureAna,CdParametre,LbLongParamètre,RsAna,CdUniteMesure,SymUniteMesure
 0,03063000,LA SEINE A ABLON-SUR-SEINE 2,3,Eau,3,"Phase aqueuse de l'eau (filtrée, centrifugée...)",20230419085527-PC-543005,2023-07-06,15:04:00,2023-07-07,22:37:00,1335,Ammonium,0.03,169,mg(NH4)/L
 1,03063000,LA SEINE A ABLON-SUR-SEINE 2,3,Eau,3,"Phase aqueuse de l'eau (filtrée, centrifugée...)",20230516131746-PC-544663,2023-07-10,12:34:00,2023-07-11,08:27:00,1335,Ammonium,0.03,169,mg(NH4)/L
 2,03063000,LA SEINE A ABLON-SUR-SEINE 2,3,Eau,3,"Phase aqueuse de l'eau (filtrée, centrifugée...)",20230621100457-PC-548447,2023-08-29,09:52:00,2023-08-30,08:14:00,1335,Ammonium,0.06,169,mg(NH4)/L
