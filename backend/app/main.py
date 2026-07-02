@@ -6,6 +6,8 @@ from typing import Optional
 import math
 import sqlite3
 
+DATABASE_PATH = "database.db"
+
 app = FastAPI()
 
 app.add_middleware(
@@ -22,8 +24,13 @@ app.add_middleware(
 
 # Transformer for Lambert to Lat/Lng
 transformer_to_lambert = Transformer.from_crs("EPSG:4326", "EPSG:2154", always_xy=True)
+transformer_to_lambert = Transformer.from_crs(
+    "EPSG:4326", "EPSG:2154", always_xy=True)
 # Transformer for Lat/Lng to Lambert (inverse)
 transformer_to_wgs84 = Transformer.from_crs("EPSG:2154", "EPSG:4326", always_xy=True)
+transformer_to_wgs84 = Transformer.from_crs(
+    "EPSG:2154", "EPSG:4326", always_xy=True)
+
 
 def get_db_connection():
     conn = sqlite3.connect("naiades_database.db")
@@ -36,6 +43,7 @@ def get_db_connection():
 @app.get("/stations-zone")
 def get_stations_zone(lat1: float, lon1: float, lat2: float, lon2: float):
     
+
     x1, y1 = transformer_to_lambert.transform(lon1, lat1)
     x2, y2 = transformer_to_lambert.transform(lon2, lat2)
 
@@ -43,6 +51,7 @@ def get_stations_zone(lat1: float, lon1: float, lat2: float, lon2: float):
     min_y, max_y = min(y1, y2), max(y1, y2)
 
     conn = sqlite3.connect("naiades_database.db")
+    conn = sqlite3.connect(DATABASE_PATH)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
@@ -59,6 +68,7 @@ def get_stations_zone(lat1: float, lon1: float, lat2: float, lon2: float):
             AND CodeDepartement = '94'
         """
         
+
         cursor.execute(query, (min_x, max_x, min_y, max_y))
         results = cursor.fetchall()
 
@@ -76,6 +86,7 @@ def get_stations_zone(lat1: float, lon1: float, lat2: float, lon2: float):
         # Convert Lambert to Lat/Lng for each station
         lon, lat = transformer_to_wgs84.transform(
             float(row["lambert_x"]), 
+            float(row["lambert_x"]),
             float(row["lambert_y"])
         )
         stations.append({
@@ -98,9 +109,11 @@ def get_stations_zone(lat1: float, lon1: float, lat2: float, lon2: float):
         "stations": stations
     }
 
+
 @app.get("/station-observations")
 def get_station_observations(code_station: int):
     conn = sqlite3.connect("naiades_database.db")
+    conn = sqlite3.connect(DATABASE_PATH)
     cursor = conn.cursor()
 
     try:
@@ -116,21 +129,25 @@ def get_station_observations(code_station: int):
         raise HTTPException(
             status_code=500,
             detail = f"Erreur SQL"
+            detail=f"Erreur SQL"
         )
     
+
     conn.close()
 
     if not result:
         raise HTTPException(
             status_code=500,
             detail = f"Erreur SQL"
+            detail=f"Erreur SQL"
         )
 
     return result
 
+
 @app.get("/station-infos")
-def get_station_infos(code_station: int, filtres: Optional[str] = None):
-    conn = sqlite3.connect("naiades_database.db")
+def get_station_infos(code_station: int):
+    conn = sqlite3.connect(DATABASE_PATH)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
@@ -141,7 +158,7 @@ def get_station_infos(code_station: int, filtres: Optional[str] = None):
             WHERE CdStationMesureEauxSurface = ?
             LIMIT 1;
         """
-        
+
         cursor.execute(query, (code_station,))
         result = cursor.fetchone()
 
@@ -156,20 +173,18 @@ def get_station_infos(code_station: int, filtres: Optional[str] = None):
 
     if not result:
         raise HTTPException(
-            status_code=404, 
+            status_code=404,
             detail=f"Aucune station trouvée ayant le code : '{code_station}'"
         )
 
     station_dict = dict(result)
-
-    if filtres:
-
-        champs_demandes = [champ.strip() for champ in filtres.split(",")]
-        donnees_station = {
-            cle: valeur 
-            for cle, valeur in donnees_station.items() 
-            if cle in champs_demandes
-        }
+    if station_dict.get('CoordXStationMesureEauxSurface') and station_dict.get('CoordYStationMesureEauxSurface'):
+        lon, lat = transformer_to_wgs84.transform(
+            float(station_dict['CoordXStationMesureEauxSurface']),
+            float(station_dict['CoordYStationMesureEauxSurface'])
+        )
+        station_dict['latitude'] = lat
+        station_dict['longitude'] = lon
 
     return {
         "station_infos": station_dict

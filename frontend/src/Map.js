@@ -6,6 +6,35 @@ import './map.css';
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 
+function updateObservations(observations)
+{
+    const pd = document.getElementById("Point_deau")
+    pd.innerHTML = "";
+    
+    observations.forEach((x) => {
+        
+        const container = document.createElement("div");
+        const checkBox = document.createElement("input");
+        const label = document.createElement("label");
+
+        checkBox.type = "checkbox";
+        checkBox.className = "checkBox";
+        label.innerHTML = x[7];
+
+        container.appendChild(
+            checkBox
+        )
+
+        container.appendChild(
+            label
+        )
+
+        pd.appendChild(
+            container
+        )
+    })
+}
+
 async function getStationsInZone(lat1, lat2, lon1, lon2) {
     try {
         const url = `http://127.0.0.1:8000/stations-zone?lat1=${lat1}&lat2=${lat2}&lon1=${lon1}&lon2=${lon2}`;
@@ -76,7 +105,7 @@ const Map = ({ center = [48.7859896, 2.5122759], zoom = 13 }) => {
 
 				marker.on("click", async function(e) {
                     const observations = await getObservations(station.code);
-					console.log(observations)
+					updateObservations(observations)
 				});
             });
 
