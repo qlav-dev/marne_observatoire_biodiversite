@@ -1,4 +1,8 @@
 
+## Pour tout lancer rapidement:
+
+`npm run dev`
+
 Lancer le backend
 
 `cd  backend`
