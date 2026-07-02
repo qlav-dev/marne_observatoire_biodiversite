@@ -23,26 +23,28 @@ app.add_middleware(
 )
 
 # Transformer for Lambert to Lat/Lng
-transformer_to_lambert = Transformer.from_crs("EPSG:4326", "EPSG:2154", always_xy=True)
+transformer_to_lambert = Transformer.from_crs(
+    "EPSG:4326", "EPSG:2154", always_xy=True)
 transformer_to_lambert = Transformer.from_crs(
     "EPSG:4326", "EPSG:2154", always_xy=True)
 # Transformer for Lat/Lng to Lambert (inverse)
-transformer_to_wgs84 = Transformer.from_crs("EPSG:2154", "EPSG:4326", always_xy=True)
+transformer_to_wgs84 = Transformer.from_crs(
+    "EPSG:2154", "EPSG:4326", always_xy=True)
 transformer_to_wgs84 = Transformer.from_crs(
     "EPSG:2154", "EPSG:4326", always_xy=True)
 
 
 def get_db_connection():
-    conn = sqlite3.connect("naiades_database.db")
+    conn = sqlite3.connect(DATABASE_PATH)
     conn.row_factory = sqlite3.Row
     try:
         yield conn
     finally:
         conn.close()
 
+
 @app.get("/stations-zone")
 def get_stations_zone(lat1: float, lon1: float, lat2: float, lon2: float):
-    
 
     x1, y1 = transformer_to_lambert.transform(lon1, lat1)
     x2, y2 = transformer_to_lambert.transform(lon2, lat2)
@@ -67,7 +69,6 @@ def get_stations_zone(lat1: float, lon1: float, lat2: float, lon2: float):
             AND CAST(CoordYStationMesureEauxSurface AS REAL) BETWEEN ? AND ?
             AND CodeDepartement = '94'
         """
-        
 
         cursor.execute(query, (min_x, max_x, min_y, max_y))
         results = cursor.fetchall()
@@ -85,7 +86,7 @@ def get_stations_zone(lat1: float, lon1: float, lat2: float, lon2: float):
     for row in results:
         # Convert Lambert to Lat/Lng for each station
         lon, lat = transformer_to_wgs84.transform(
-            float(row["lambert_x"]), 
+            float(row["lambert_x"]),
             float(row["lambert_x"]),
             float(row["lambert_y"])
         )
@@ -128,18 +129,15 @@ def get_station_observations(code_station: int):
         conn.close()
         raise HTTPException(
             status_code=500,
-            detail = f"Erreur SQL"
-            detail=f"Erreur SQL"
+            detail=f"Erreur SQL",
         )
-    
 
     conn.close()
 
     if not result:
         raise HTTPException(
             status_code=500,
-            detail = f"Erreur SQL"
-            detail=f"Erreur SQL"
+            detail=f"Erreur SQL",
         )
 
     return result
@@ -191,6 +189,8 @@ def get_station_infos(code_station: int):
     }
 
 # New endpoint to convert Lambert coordinates to Lat/Lng
+
+
 @app.get("/convert-lambert-to-latlng")
 def convert_lambert_to_latlng(x: float, y: float):
     """
@@ -211,6 +211,8 @@ def convert_lambert_to_latlng(x: float, y: float):
         )
 
 # New endpoint to convert Lat/Lng to Lambert
+
+
 @app.get("/convert-latlng-to-lambert")
 def convert_latlng_to_lambert(lat: float, lng: float):
     """
@@ -229,7 +231,6 @@ def convert_latlng_to_lambert(lat: float, lng: float):
             status_code=400,
             detail=f"Erreur de conversion: {str(e)}"
         )
-    
 
 
 @app.get("/station-animaux-evolution")
@@ -254,7 +255,8 @@ def get_station_animaux_evolution(code_station: int, db: sqlite3.Connection = De
         cursor.execute(query, (code_station,))
         results = cursor.fetchall()
     except sqlite3.OperationalError as e:
-        raise HTTPException(status_code=500, detail=f"Erreur lors du croisement des données : {e}. Vérifie tes tables.")
+        raise HTTPException(
+            status_code=500, detail=f"Erreur lors du croisement des données : {e}. Vérifie tes tables.")
 
     if not results:
         return {
@@ -266,7 +268,7 @@ def get_station_animaux_evolution(code_station: int, db: sqlite3.Connection = De
     # 3. Structuration de l'historique chronologique pour le graphique du site
     historique = []
     liste_especes_presentes = set()
-    
+
     for row in results:
         liste_especes_presentes.add(row["espece_latin"])
         historique.append({
@@ -286,6 +288,7 @@ def get_station_animaux_evolution(code_station: int, db: sqlite3.Connection = De
         },
         "donnees_evolution": historique
     }
+
 
 if __name__ == "__main__":
     import uvicorn
