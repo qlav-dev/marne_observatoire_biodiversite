@@ -1,6 +1,7 @@
 
 ## Pour tout lancer rapidement:
 
+`npm install`
 `npm run dev`
 
 Lancer le backend

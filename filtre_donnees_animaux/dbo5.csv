@@ -1,4 +1,4 @@
-,CdStationMesureEauxSurface,LbStationMesureEauxSurface,CdSupport,LbSupport,CdFractionAnalysee,LbFractionAnalysee,CdPrelevement,DatePrel,HeurePrel,DateAna,HeureAna,CdParametre,LbLongParamètre,RsAna,CdUniteMesure,SymUniteMesure
+Id,CdStationMesureEauxSurface,LbStationMesureEauxSurface,CdSupport,LbSupport,CdFractionAnalysee,LbFractionAnalysee,CdPrelevement,DatePrel,HeurePrel,DateAna,HeureAna,CdParametre,LbLongParamètre,RsAna,CdUniteMesure,SymUniteMesure
 0,03063000,LA SEINE A ABLON-SUR-SEINE 2,3,Eau,23,Eau brute,20230419085527-PC-543005,2023-07-06,15:04:00,2023-07-07,22:52:00,1313,Demande Biochimique en oxygène en 5 jours (D.B.O.5),1,175,mg(O2)/L
 1,03063000,LA SEINE A ABLON-SUR-SEINE 2,3,Eau,23,Eau brute,20230516131746-PC-544663,2023-07-10,12:34:00,2023-07-11,,1313,Demande Biochimique en oxygène en 5 jours (D.B.O.5),,175,mg(O2)/L
 2,03063000,LA SEINE A ABLON-SUR-SEINE 2,3,Eau,23,Eau brute,20230621100457-PC-548447,2023-08-29,09:52:00,2023-08-30,03:24:00,1313,Demande Biochimique en oxygène en 5 jours (D.B.O.5),1.3,175,mg(O2)/L

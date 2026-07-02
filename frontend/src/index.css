@@ -171,6 +171,12 @@ code {
   flex-direction: column;
 }
 
+#three
+{
+  display: flex;
+  flex-direction: column;
+}
+
 .checkBox
 {
   
