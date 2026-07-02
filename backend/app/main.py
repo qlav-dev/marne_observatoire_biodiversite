@@ -47,6 +47,7 @@ def get_stations_zone(lat1: float, lon1: float, lat2: float, lon2: float):
             WHERE CoordXStationMesureEauxSurface IS NOT NULL
             AND CAST(CoordXStationMesureEauxSurface AS REAL) BETWEEN ? AND ?
             AND CAST(CoordYStationMesureEauxSurface AS REAL) BETWEEN ? AND ?
+            AND CodeDepartement = '94'
         """
         
         cursor.execute(query, (min_x, max_x, min_y, max_y))
